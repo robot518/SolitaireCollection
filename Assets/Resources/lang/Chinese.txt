@@ -1,0 +1,14 @@
+time=时间
+step=步数
+start=开始
+auto=自动
+easy=简单
+normal=一般
+difficult=困难
+sound=音效
+music=音乐
+show=显示
+hide=隐藏
+undo=撤销
+redo=重做
+tips=提示
