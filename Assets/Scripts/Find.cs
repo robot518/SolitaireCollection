@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 public class Find : MonoBehaviour, IPointerDownHandler, IPointerUpHandler{
-	Kdjl _delegate;
+    IMain _delegate;
 	int _iCardNum;
 
 	// Use this for initialization
@@ -18,7 +18,7 @@ public class Find : MonoBehaviour, IPointerDownHandler, IPointerUpHandler{
 		
 	}
 
-	public void init(int iCardNum, Kdjl delt){
+	public void init(int iCardNum, IMain delt){
 		_delegate = delt;
 		_iCardNum = iCardNum + 1;
 		string str = "finds__" + iCardNum;

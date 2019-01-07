@@ -6,6 +6,9 @@
 [Ll]ogs/
 [Pp]ackages/
 *.meta
+*.keystore
+.gradle/
+*.DS_Store
 Assets/AssetStoreTools*
 
 # Visual Studio cache directory

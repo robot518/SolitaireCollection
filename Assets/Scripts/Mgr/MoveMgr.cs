@@ -13,10 +13,10 @@ public class MoveMgr {
 	}
 
 	public void removeAll(){
-		lPreCard.RemoveRange(0, lPreCard.Count);
-		lPrePos.RemoveRange (0, lPrePos.Count);
-		lPreRow.RemoveRange (0, lPreRow.Count);
-	}
+		lPreCard.Clear();
+		lPrePos.Clear();
+        lPreRow.Clear();
+    }
 
 	public void onMoveCard(){
 		int[] tIdx = {lPreCard.Count - 1, lPrePos.Count - 1, lPreRow.Count - 1};

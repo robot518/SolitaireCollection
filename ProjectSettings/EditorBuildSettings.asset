@@ -14,4 +14,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Kdjl.unity
     guid: 433d9ef851f794a18b637f8e704cb2ca
+  - enabled: 1
+    path: Assets/Scenes/Spider.unity
+    guid: be76779f37b4a45f68faf679e39666c4
+  - enabled: 1
+    path: Assets/Scenes/Zpjl.unity
+    guid: e58605f756a9b4d0982aa018611cead8
+  - enabled: 1
+    path: Assets/Scenes/GrowUp.unity
+    guid: 6ea9c5a508cb343819978c292545f0d2
   m_configObjects: {}

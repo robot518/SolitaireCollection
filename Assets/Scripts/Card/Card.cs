@@ -159,9 +159,9 @@ public class Card : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHand
 		_iColor = iCardType % 2 == 1 ? 0 : 1;
 
 		textCardNum.text = FuncMgr.getInstance ().getCardNum (iCardNum, _iColor);
-		string[] CardType = {"fangkuai", "meihua", "hongtao", "heitao"};
-		var sprite = Resources.Load<Sprite> ("res/" + CardType [iCardType - 1]);
-		imgBigCardType.GetComponent<Image> ().sprite = sprite;
+        var str = "huase_" + (iCardType - 1);
+        var sprite = AtlasMgr.getInstance().getSpt("res", str);
+        imgBigCardType.GetComponent<Image> ().sprite = sprite;
 		imgSmCardType.GetComponent<Image> ().sprite = sprite;
 	}
 

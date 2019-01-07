@@ -9,9 +9,6 @@ public class AudioMgr : MonoBehaviour {
 	//音乐文件
 	public AudioSource music;
 	public AudioSource sound;
-	//slider
-	public Slider musicSld;
-	public Slider soundSld;
 
 	public static AudioMgr getInstance() {
 		if (adMgr == null) {
@@ -25,18 +22,6 @@ public class AudioMgr : MonoBehaviour {
 		//设置默认音量
 		music.volume = 0.3F;
 		sound.volume = 0.7F;
-		initSldEvent ();
-	}
-
-	void initSldEvent(){
-		musicSld.value = music.volume;
-		musicSld.onValueChanged.AddListener (delegate {
-			music.volume = musicSld.value;
-		});
-		soundSld.value = sound.volume;
-		soundSld.onValueChanged.AddListener (delegate {
-			sound.volume = soundSld.value;
-		});
 	}
 
 	public void PlaySound(string soundName){

@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
-public class Kdjl : MonoBehaviour {
+public class Kdjl : MonoBehaviour, IMain
+{
 	public Text textStep;
 	public Text textTime;
 	public GameObject goCard;
@@ -105,23 +107,15 @@ public class Kdjl : MonoBehaviour {
 	}
 
 	void initBtnEvents(){
-		var btnShow = transform.Find ("btnShow").gameObject.GetComponent<Button> ();
-		btnShow.onClick.AddListener (delegate {
-			_bShowBtns = !_bShowBtns;
-			transform.Find("goFinds").gameObject.SetActive(_bShowBtns);
-			transform.Find("goBtns").gameObject.SetActive(_bShowBtns);
-			transform.Find("goToggles").gameObject.SetActive(_bShowBtns);
-			transform.Find("goTogLang").gameObject.SetActive(_bShowBtns);
-			transform.Find("soundSld").gameObject.SetActive(_bShowBtns);
-			transform.Find("musicSld").gameObject.SetActive(_bShowBtns);
-			var text = btnShow.transform.GetChild(0).gameObject.GetComponent<Text>();
-			var str = _bShowBtns == true ? "hide" : "show";
-			text.text = langMgr.getValue(str);
-		});
+        transform.Find("goTop/back").GetComponent<Button>().onClick.AddListener(delegate
+        {
+            SceneManager.LoadScene("Login");
+        });
 
-		UnityAction[] tFunc = {onClickStart, onClickAuto, onClickPrompt, onClickUndo, onClickRedo};
+        var btns = transform.Find("goBtns");
+        UnityAction[] tFunc = {onClickStart, onClickAuto, onClickPrompt, onClickUndo, onClickRedo};
 		for (var i = 0; i < tFunc.Length; i++){
-			var btn = transform.Find ("goBtns").GetChild(i).gameObject.GetComponent<Button>();
+			var btn = btns.GetChild(i).gameObject.GetComponent<Button>();
 			btn.onClick.AddListener (tFunc[i]);
 		}
 
@@ -144,28 +138,6 @@ public class Kdjl : MonoBehaviour {
 				}
 			);
 		}
-
-		string[] tStr = { "Chinese", "Englise", "SPChinese" };
-		var lLab2 = new List<Text> ();
-		var transP = transform.Find ("goTogLang");
-		for (var i = 0; i < 3; i++){
-			var idx = i;
-			var trans = transP.GetChild (i);
-			var tog = trans.GetComponent<Toggle>();
-			lLab2.Add (trans.GetChild (1).gameObject.GetComponent<Text> ());
-			tog.onValueChanged.AddListener (
-				delegate(bool isOn)
-				{
-					if (isOn == true){
-						adMgr.PlaySound ("click");
-						lLab2[idx].color = new Color(0, 1, 1, 1);
-						langMgr.setLang(tStr[idx]);
-						showTexts();
-					}else
-						lLab2[idx].color = Color.white;
-				}
-			);
-		}
 	}
 
 	void initFinds(){
@@ -174,7 +146,7 @@ public class Kdjl : MonoBehaviour {
 			if (i == 0)
 				item = goFind;
 			else {
-				item = GameObject.Instantiate(goFind);
+				item = Instantiate(goFind);
 				item.transform.SetParent (goFind.transform.parent);
 				item.transform.localScale = Vector3.one;
 			}
@@ -326,7 +298,7 @@ public class Kdjl : MonoBehaviour {
 			if (i == 0)
 				item = goCard;
 			else {
-				GameObject goCardTemp = GameObject.Instantiate(goCard);
+				GameObject goCardTemp = Instantiate(goCard);
 				goCardTemp.transform.SetParent(goMove.transform);
 				goCardTemp.transform.localScale = Vector3.one;
 				item = goCardTemp;
@@ -635,9 +607,15 @@ public class Kdjl : MonoBehaviour {
 		return false;
 	}
 
-	public Transform getTransP(int iPos, int iRow){
-		return tTrans [iPos].GetChild (iRow);
-	}
+    //public Transform getTransMove()
+    //{
+    //    return goMove.transform;
+    //}
+
+    public Transform getTransP(int iPos, int iRow)
+    {
+        return tTrans[iPos].GetChild(iRow);
+    }
 
 	void showWin(){
 		var iPos = 2;
@@ -702,8 +680,8 @@ public class Kdjl : MonoBehaviour {
 	} 
 
 	void showTexts(){
-		transform.Find ("goOthers/textTime").gameObject.GetComponent<Text> ().text = langMgr.getValue ("time") + ": ";
-		transform.Find ("goOthers/textStep").gameObject.GetComponent<Text> ().text = langMgr.getValue ("step") + ": ";
+		transform.Find ("goTop/labTime/lab").gameObject.GetComponent<Text> ().text = langMgr.getValue ("time") + ": ";
+		transform.Find ("goTop/labStep/lab").gameObject.GetComponent<Text> ().text = langMgr.getValue ("step") + ": ";
 		transform.Find ("goBtns/btnStart/Text").gameObject.GetComponent<Text> ().text = langMgr.getValue ("start");
 		transform.Find ("goBtns/btnAuto/Text").gameObject.GetComponent<Text> ().text = langMgr.getValue ("auto");
 		transform.Find ("goBtns/btnUndo/Text").gameObject.GetComponent<Text> ().text = langMgr.getValue ("undo");
@@ -712,9 +690,5 @@ public class Kdjl : MonoBehaviour {
 		transform.Find ("goToggles/tog1/Label").gameObject.GetComponent<Text> ().text = langMgr.getValue ("easy");
 		transform.Find ("goToggles/tog2/Label").gameObject.GetComponent<Text> ().text = langMgr.getValue ("normal");
 		transform.Find ("goToggles/tog3/Label").gameObject.GetComponent<Text> ().text = langMgr.getValue ("difficult");
-		transform.Find ("soundSld/Text").gameObject.GetComponent<Text> ().text = langMgr.getValue ("sound") + ": ";
-		transform.Find ("musicSld/Text").gameObject.GetComponent<Text> ().text = langMgr.getValue ("music") + ": ";
-		var str = _bShowBtns == true ? "hide" : "show";
-		transform.Find ("btnShow/Text").gameObject.GetComponent<Text> ().text = langMgr.getValue (str);
 	}
 }

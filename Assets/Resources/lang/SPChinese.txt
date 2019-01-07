@@ -12,3 +12,4 @@ hide=隱藏
 undo=撤銷
 redo=重做
 tips=提示
+prompt=提示
