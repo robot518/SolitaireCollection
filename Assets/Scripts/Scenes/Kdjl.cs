@@ -12,7 +12,8 @@ public class Kdjl : MonoBehaviour, IMain
 	public GameObject goCard;
 	public GameObject goFind;
 	public GameObject goMove;
-	Transform goChoice;
+    GameObject goTips;
+    Transform goChoice;
 	List<Card> lCards = new List<Card>();
 	List<Card> lFindCards = new List<Card>();
 	List<int> lCardDatas = new List<int>();
@@ -32,29 +33,31 @@ public class Kdjl : MonoBehaviour, IMain
 	float _plx;
 	float _prx;
 	bool _bTouch;
-	bool _bShowBtns;
 	bool _bWin;
 	int _iPrompt;
 	const int IROWCOUNT = 8;
 	const int IROWDIS = 65;
+    int iMLeft = 4; //中转空位
+    int iNLeft = 0; //牌组空位
 
 	// Use this for initialization
 	void Start () {
 		initParas ();
-		initShow ();
+        initEvents();
+        initShow ();
 		Invoke("onClickStart", 1.0f);
 	}
 
 	// Update is called once per frame
 	void Update () {
-		if ( Application.platform == RuntimePlatform.Android &&(Input.GetKeyDown(KeyCode.Escape)))  
+		if ( Application.platform == RuntimePlatform.Android &&(Input.GetKeyDown(KeyCode.Escape)))
 		{
 			Application.Quit ();
 		}
 	}
 
 	void initParas(){
-		var goC = transform.Find ("ndH/ndV/ndCard1").gameObject;
+        var goC = transform.Find ("ndH/ndV/ndCard1").gameObject;
 		goC.transform.SetParent (goMove.transform);
 		var pos = goC.GetComponent<RectTransform>().anchoredPosition;
 		_px = pos.x;
@@ -74,18 +77,57 @@ public class Kdjl : MonoBehaviour, IMain
 
 		_gameCount = 0;
 		_bTouch = true;
-		_bShowBtns = true;
 		undoMgr = new MoveMgr (this);
 		redoMgr = new MoveMgr (this);
 		adMgr = AudioMgr.getInstance ();
 		langMgr = LangMgr.getInstance ();
 		tTrans = new Transform[]{transform.Find ("ndH"), transform.Find ("goMedium"), transform.Find ("goDes")};
 		goChoice = transform.Find ("goToggles");
-		reset ();
+        goTips = transform.Find("tips").gameObject;
+        reset ();
 	}
 
-	void initShow(){
-		initBtnEvents ();
+    void initEvents()
+    {
+        transform.Find("goTop/back").GetComponent<Button>().onClick.AddListener(delegate
+        {
+            SceneManager.LoadScene("Login");
+        });
+
+        var btns = transform.Find("goBtns");
+        UnityAction[] tFunc = { onClickStart, onClickAuto, onClickPrompt, onClickUndo, onClickRedo };
+        for (var i = 0; i < tFunc.Length; i++)
+        {
+            var btn = btns.GetChild(i).gameObject.GetComponent<Button>();
+            btn.onClick.AddListener(tFunc[i]);
+        }
+
+        _iDiff = 1;
+        var lLab = new List<Text>();
+        for (var i = 0; i < 3; i++)
+        {
+            var idx = i;
+            var trans = goChoice.GetChild(i);
+            var tog = trans.GetComponent<Toggle>();
+            lLab.Add(trans.GetChild(1).gameObject.GetComponent<Text>());
+            tog.onValueChanged.AddListener(
+                delegate (bool isOn)
+                {
+                    if (isOn == true)
+                    {
+                        adMgr.PlaySound("click");
+                        _iDiff = idx + 1;
+                        lLab[idx].color = new Color(0, 1, 1, 1);
+                    }
+                    else
+                        lLab[idx].color = Color.white;
+                }
+            );
+        }
+    }
+
+    void initShow()
+    {
 		initGoCards ();
 		initFinds ();
 		showTexts ();
@@ -106,40 +148,6 @@ public class Kdjl : MonoBehaviour, IMain
 		redoMgr.removeAll ();
 	}
 
-	void initBtnEvents(){
-        transform.Find("goTop/back").GetComponent<Button>().onClick.AddListener(delegate
-        {
-            SceneManager.LoadScene("Login");
-        });
-
-        var btns = transform.Find("goBtns");
-        UnityAction[] tFunc = {onClickStart, onClickAuto, onClickPrompt, onClickUndo, onClickRedo};
-		for (var i = 0; i < tFunc.Length; i++){
-			var btn = btns.GetChild(i).gameObject.GetComponent<Button>();
-			btn.onClick.AddListener (tFunc[i]);
-		}
-
-		_iDiff = 1;
-		var lLab = new List<Text> ();
-		for (var i = 0; i < 3; i++){
-			var idx = i;
-			var trans = goChoice.GetChild (i);
-			var tog = trans.GetComponent<Toggle>();
-			lLab.Add (trans.GetChild (1).gameObject.GetComponent<Text> ());
-			tog.onValueChanged.AddListener (
-				delegate(bool isOn)
-				{
-					if (isOn == true){
-						adMgr.PlaySound ("click");
-						_iDiff = idx + 1;
-						lLab[idx].color = new Color(0, 1, 1, 1);
-					}else
-						lLab[idx].color = Color.white;
-				}
-			);
-		}
-	}
-
 	void initFinds(){
 		for (int i = 0; i < 13; i++) {
 			GameObject item;
@@ -154,7 +162,7 @@ public class Kdjl : MonoBehaviour, IMain
 		}
 	}
 
-	void onClickStart () {
+	void onClickStart() {
 		setTouchable (false);
 		foreach (var card in lCards) {
 			//card.playWinMove (false);
@@ -259,11 +267,6 @@ public class Kdjl : MonoBehaviour, IMain
 		while (true) {
 			textTime.text = getStrTime (_iTime);
 			_iTime++;
-			if (_iTime > 3600){
-				adMgr.PlaySound ("lose");
-				Invoke ("onClickStart", 2.0f);
-				yield break;
-			}
 			yield return new WaitForSeconds (1);
 		}
 	}
@@ -410,15 +413,20 @@ public class Kdjl : MonoBehaviour, IMain
 		setTouchable (true);
 	}
 
+    //重置牌是否能移动，中转及牌组空位数量
 	public void setBMove(){
 		Transform trans;
 		int len;
 		Card preCard = null;
+        iNLeft = 0;
 		for (var i = 0; i < IROWCOUNT; i++){
 			trans = getTransP(0, i).transform;
 			len = trans.childCount - 1;
 			if (len < 0)
-				continue;
+            {
+                iNLeft++;
+                continue;
+            }
 			for (var j = len; j >= 0; j--) {
 				Card card = trans.GetChild (j).GetComponent<Card> ();
 				if ((j == len) || (preCard.getBMove () == true && card.getColor () != preCard.getColor () && card.getCardNum () - 1 == preCard.getCardNum ()))
@@ -428,9 +436,22 @@ public class Kdjl : MonoBehaviour, IMain
 				preCard = card;
 			}
 		}
-	}
 
-	public bool getBDropped(Card card, Vector2 pos){
+        var iPos = 1;
+        iMLeft = 0;
+        trans = tTrans[iPos];
+        for (var i = 0; i < trans.childCount; i++)
+        {
+            var transTemp = trans.GetChild(i);
+            if (transTemp.childCount == 0)
+            {
+                iMLeft++;
+            }
+        }
+    }
+
+    // 0牌组、1中转、2终点
+    public bool getBDropped(Card card, Vector2 pos){
 		for (var i = 0; i < tTrans.Length; i++) {
 			var trans = tTrans [i];
 			for (var j = 0; j < trans.childCount; j++) {
@@ -439,15 +460,15 @@ public class Kdjl : MonoBehaviour, IMain
 					rect = rect.GetChild (rect.childCount - 1);
 				bool bIn = RectTransformUtility.RectangleContainsScreenPoint ((RectTransform)rect, pos);
 				if (bIn == true) {
-					if (card.getPos() == i && card.getRow() == j) return false;
-					if (i == 0) 
-						return getBSuitCard (card, j);
-					else if (card.getItems().Count == 0) {
-						if (i == 1 && rect.childCount == 0) {
+					if (card.getPos() == i && card.getRow() == j) return false; //移到自己身上
+                    if (i == 0)
+						return getBSuitCard (card, j); //移到牌组
+                    else if (card.getItems().Count == 0) { 
+						if (i == 1 && rect.childCount == 0) { //移到中转
 							onCardMove (card, i, j);
 							return true;
 						}
-						if (i == 2 && getBMoveToDes (card, j) == true) {
+						if (i == 2 && getBMoveToDes (card, j) == true) { //移到终点
 							return true;
 						}
 						return false;
@@ -482,7 +503,7 @@ public class Kdjl : MonoBehaviour, IMain
 			card.addItems ();
 		var items = card.getItems ();
 		var trans = getTransP(iPos, iRow);
-		card.setPos (iPos);
+        card.setPos (iPos);
 		card.setRow (iRow);
 		card.transform.SetParent (trans);
 		if (iPos != 0) {
@@ -531,14 +552,34 @@ public class Kdjl : MonoBehaviour, IMain
 		}
 	}
 
-	bool getBSuitCard(Card cardDown, int iRow){
+    int getILimit(int iL)
+    {
+        if (iL > 0)
+        {
+            return (iMLeft + 1) * (iNLeft + 1); //移到牌后面
+        }
+        else
+        {
+            return iMLeft * iNLeft + iNLeft; //移到空位上
+        }
+    }
+
+    bool getBSuitCard(Card cardDown, int iRow){
 		var iPos = 0;
 		var rect = getTransP(iPos, iRow);
-		if (rect.childCount == 0) {
+        var iL = rect.childCount;
+        var iLimit = getILimit(iL);
+        //超过移牌限制
+        if (cardDown.getItems().Count + 1 > iLimit)
+        {
+            showTips("可移动" + iLimit + "张牌");
+            return false;
+        }
+        if (iL == 0) {
 			onCardMove (cardDown, iPos, iRow);
 			return true;
 		} else {
-			var cardUp = rect.GetChild (rect.childCount - 1).gameObject.GetComponent<Card> ();
+			var cardUp = rect.GetChild (iL - 1).gameObject.GetComponent<Card> ();
 			if (cardDown.getColor () != cardUp.getColor () && cardUp.getCardNum () - cardDown.getCardNum () == 1) {
 				onCardMove (cardDown, iPos, iRow);
 				return true;
@@ -584,21 +625,25 @@ public class Kdjl : MonoBehaviour, IMain
 	public bool getBMoveToCard (Card card, bool bMove) {
 		var iPos = 0;
 		var transP = tTrans [iPos];
+        var i1 = getILimit(1);
+        var iCount = card.getItems().Count + 1;
 		for (var i = 0; i < transP.childCount; i++) {
 			if (card.getPos() == 0 && card.getRow() == i) continue;
 			var rect = transP.GetChild (i);
-			if (rect.childCount > 0) {
+			if (rect.childCount > 0 && iCount <= i1) {
 				var cardUp = rect.GetChild (rect.childCount - 1).gameObject.GetComponent<Card> ();
 				if (card.getColor () != cardUp.getColor () && cardUp.getCardNum () - card.getCardNum () == 1) {
 					if (bMove == true)
 						onCardMove (card, iPos, i);
 					return true;
 				}
-			}
-		}
-		for (var i = 0; i < transP.childCount; i++) {
+            }
+        }
+        // 优先移到有牌的再移动到无牌的
+        var i2 = getILimit(0);
+        for (var i = 0; i < transP.childCount; i++) {
 			if (card.getPos() == 0 && card.getRow() == i) continue;
-			if (transP.GetChild (i).childCount == 0) {
+			if (transP.GetChild (i).childCount == 0 && iCount <= i2) {
 				if (bMove == true)
 					onCardMove (card, iPos, i);
 				return true;
@@ -630,11 +675,14 @@ public class Kdjl : MonoBehaviour, IMain
 		}
 		if (bWin == true) {
 			_bWin = true;
-			setTouchable (false);
 			adMgr.PlaySound ("win");
 			StopCoroutine (coPlayTime);
-			Invoke ("playWin", 2.0f);
-		}
+            if (Global.bWinPlay)
+            {
+                setTouchable(false);
+                Invoke("playWin", 0.5f);
+            }
+        }
 	}
 
 	void playWin(){
@@ -673,7 +721,20 @@ public class Kdjl : MonoBehaviour, IMain
 		lFindCards.Clear ();
 	}
 
-	void setTouchable(bool bTouch){
+    IEnumerator playTips()
+    {
+        goTips.SetActive(true);
+        yield return new WaitForSeconds(1.0f);
+        goTips.SetActive(false);
+    }
+
+    void showTips(string str)
+    {
+        goTips.transform.GetChild(0).GetComponent<Text>().text = str;
+        StartCoroutine(playTips());
+    }
+
+    void setTouchable(bool bTouch){
 		_bTouch = bTouch;
 		var control = GetComponent<CanvasGroup> ();
 		control.blocksRaycasts = _bTouch;

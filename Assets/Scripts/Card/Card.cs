@@ -228,8 +228,9 @@ public class Card : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHand
 			return;
 		}
 		addItems ();
-		if (items.Count == 0 && (_delegate.getBMoveToDes (this) == true || _delegate.getBMoveToCard (this, true) == true
-		    || _delegate.getBMoveToMedium (this) == true)) {
+        // 自动移牌顺序
+		if (items.Count == 0 && (_delegate.getBMoveToDes (this) == true || _delegate.getBMoveToCard(this, true) == true
+            || _delegate.getBMoveToMedium (this) == true)) {
 		} else if (_delegate.getBMoveToCard (this, true) == false) {
 			sSound = "cMove";
 			showMoveBack ();

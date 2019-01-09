@@ -35,7 +35,6 @@ public class Spider : MonoBehaviour,IMain
 	float _ply;
 	float _plx;
 	float _prx;
-	bool _bShowBtns;
 	const int IROWCOUNT = 10;
 	const int IROWDIS = 65;
 	int _iWinCount;
@@ -77,7 +76,6 @@ public class Spider : MonoBehaviour,IMain
 		_prx = posR.x;
 		Destroy (goR);
 
-		_bShowBtns = true;
 		undoMgr = new MoveMgrSpider (this);
 //		redoMgr = new MoveMgrSpider (this);
 		adMgr = AudioMgr.getInstance ();
@@ -348,11 +346,6 @@ public class Spider : MonoBehaviour,IMain
 		while (true) {
 			textTime.text = getStrTime (_iTime);
 			_iTime++;
-			if (_iTime > 3600){
-				adMgr.PlaySound ("lose");
-				Invoke ("onClickStart", 1.5f);
-				yield break;
-			}
 			yield return new WaitForSeconds (1);
 		}
 	}
@@ -696,13 +689,16 @@ public class Spider : MonoBehaviour,IMain
 				_transWin = trans;
 				lDesStep.Add (_iStep);
 				lDesRow.Add (trans.GetSiblingIndex ());
-				setTouchable (false);
-				Invoke ("playWinTrans", 0.5f);
-			}
+                if (Global.bWinPlay)
+                {
+                    setTouchable(false);
+                    Invoke("playWin", 0.5f);
+                }
+            }
 		}
 	}
 
-	void playWinTrans(){
+	void playWin(){
 		StartCoroutine (playTransCards());
 	}
 

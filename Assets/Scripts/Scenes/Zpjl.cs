@@ -224,16 +224,6 @@ public class Zpjl : MonoBehaviour, IMain
 			card.transform.SetParent (goMove.transform);
 			card.gameObject.GetComponent<RectTransform>().anchoredPosition = new Vector2 (_plx + 100, -100);
 		}
-//		for (int i = 0; i < 4; i++) {
-//			for (int j = 0; j < 13; j++) {
-//				var idx = j + 13 * i;
-//				var card = lCards [idx];
-//				card.init(j + 1, i + 1, 2, i, this);
-//				card.transform.SetParent (getTransP (2, i));
-//				card.transform.localPosition = Vector3.zero;
-//			}
-//		}
-//		playWin ();
 		initDataCards ();
 		reset ();
 		if (coPlayTime != null)
@@ -435,11 +425,6 @@ public class Zpjl : MonoBehaviour, IMain
 		while (true) {
 			labTime.text = getStrTime (_iTime);
 			_iTime++;
-			if (_iTime > 3600){
-				adMgr.PlaySound ("lose");
-				Invoke ("onClickStart", 1.5f);
-				yield break;
-			}
 			yield return new WaitForSeconds (1);
 		}
 	}
@@ -709,10 +694,14 @@ public class Zpjl : MonoBehaviour, IMain
 		}
 		if (bWin == true) {
 			_bWin = true;
-			setTouchable (false);
 			adMgr.PlaySound ("win");
 			StopCoroutine (coPlayTime);
-			Invoke ("playWin", 1.0f);
+            if (Global.bWinPlay)
+            {
+                setTouchable(false);
+                Invoke("playWin", 0.5f);
+            }
+
 		}
 	}
 

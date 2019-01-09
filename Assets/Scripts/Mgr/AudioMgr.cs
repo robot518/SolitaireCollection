@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class AudioMgr : MonoBehaviour {
 	static GameObject go;
@@ -19,17 +18,30 @@ public class AudioMgr : MonoBehaviour {
 
 	void Awake() {
 		go = gameObject;
-		//设置默认音量
-		music.volume = 0.3F;
-		sound.volume = 0.7F;
-	}
+        //设置默认音量
+        //music.volume = 0.3F;
+        //sound.volume = 0.7F;
+        if (Global.bVoice == false)
+            stop();
+        else
+            play();
+    }
 
 	public void PlaySound(string soundName){
 		AudioClip clip = Resources.Load ("audio/" + soundName) as AudioClip;
 		sound.PlayOneShot(clip);
 	}
 
-	void stopSound(){
-		sound.Stop ();
-	}
+    void stop(){
+        //music.Stop();
+        //sound.Stop ();
+        music.volume = 0;
+        sound.volume = 0;
+    }
+
+    void play()
+    {
+        music.volume = 1;
+        sound.volume = 1;
+    }
 }
