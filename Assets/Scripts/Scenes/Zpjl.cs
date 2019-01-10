@@ -7,37 +7,39 @@ using UnityEngine.SceneManagement;
 
 public class Zpjl : MonoBehaviour, IMain
 {
-	Text labStep;
-	Text labTime;
-	Text labLeftCount;
-	int _iStep;
+    public GameObject goMove;
+    const int IROWCOUNT = 7;
+    const int ILINEDIS = 42;
+    const int IROWDIS = 95;
+    int _iStep;
 	int _iTime;
 	int _iLeftCount;
-	Transform[] tTrans;
 	int _iPrompt;
-	GameObject goCard;
-	List<CardZpjl> lCards = new List<CardZpjl> ();
-	public GameObject goMove;
-	List<int> lCardDatas = new List<int> ();
-	List<int> lInitCardDatas = new List<int> ();
-	Coroutine coPlayTime;
-	float _px;
-	float _py;
-	float _plx;
-	float _ply;
-	float _prx;
-	bool _bWin;
-	const int IROWCOUNT = 7;
-	const int ILINEDIS = 40;
-	const int IROWDIS = 95;
+    int _iDiff;
+    List<int> lCardDatas = new List<int>();
+    List<int> lInitCardDatas = new List<int>();
+    List<int> lLeftClickStep = new List<int>();
+    float _px;
+    float _py;
+    float _plx;
+    float _ply;
+    float _prx;
+    bool _bWin;
+    Coroutine coPlayTime;
+    GameObject goCard;
+    GameObject goTips;
+    Transform[] tTrans;
+    Text labStep;
+    Text labTime;
+    Text labLeftCount;
+    AudioMgr adMgr;
     MoveMgrZpjl undoMgr;
-	AudioMgr adMgr;
+    CardZpjl cardUpTips = null;
+    List<CardZpjl> lCards = new List<CardZpjl>();
 	List<CardZpjl> lFindCards = new List<CardZpjl>();
-	List<int> lLeftClickStep = new List<int>();
-	int _iDiff;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
 		intParas ();
 		initShow ();
 		Invoke("onClickStart", 1.0f);
@@ -68,7 +70,8 @@ public class Zpjl : MonoBehaviour, IMain
 		_prx = posR.x;
 		Destroy (goR);
 
-		var goTop = transform.Find ("goTop");
+        goTips = transform.Find("tips").gameObject;
+        var goTop = transform.Find ("goTop");
 		labTime = goTop.GetChild (1).GetComponent<Text> ();
 		labStep = goTop.GetChild (2).GetComponent<Text> ();
 		_iStep = 0;
@@ -258,7 +261,8 @@ public class Zpjl : MonoBehaviour, IMain
 								return;
 							_iPrompt++;
 							card.showRotate ();
-						}
+                            showUpCardRotate(card);
+                        }
 					}
 				}
 			}
@@ -368,8 +372,7 @@ public class Zpjl : MonoBehaviour, IMain
 				yield return new WaitForSeconds(iTime);
 			}
 			if (bMove == false) {
-				if (_bWin == false)
-					setTouchable (true);
+                setTouchable (true);
 				yield break;
 			}
 		}
@@ -492,10 +495,6 @@ public class Zpjl : MonoBehaviour, IMain
 					if (i == 0) 
 						return getBSuitCard (card, j);
 					else if (card.getItems().Count == 0) {
-						if (i == 1 && rect.childCount == 0) {
-							onCardMove (card, i, j);
-							return true;
-						}
 						if (i == 2 && getBMoveToDes (card, j) == true) {
 							return true;
 						}
@@ -599,9 +598,15 @@ public class Zpjl : MonoBehaviour, IMain
 		var iPos = 0;
 		var rect = getTransP(iPos, iRow);
 		if (rect.childCount == 0) {
-			onCardMove (cardDown, iPos, iRow);
-			return true;
-		} else {
+            if (cardDown.getCardNum() == 13)
+            {
+                onCardMove(cardDown, iPos, iRow);
+                return true;
+            }
+            else
+                showTips("K及K的序列可移至空列!");
+
+        } else {
 			var cardUp = rect.GetChild (rect.childCount - 1).gameObject.GetComponent<CardZpjl> ();
 			if (cardDown.getColor () != cardUp.getColor () && cardUp.getCardNum () - cardDown.getCardNum () == 1) {
 				onCardMove (cardDown, iPos, iRow);
@@ -645,7 +650,38 @@ public class Zpjl : MonoBehaviour, IMain
 		return false;
 	}
 
-	public bool getBMoveToCard (CardZpjl card, bool bMove) {
+    IEnumerator playTipsCard()
+    {
+        yield return new WaitForSeconds(0.2f);
+        if (cardUpTips != null)
+        {
+            cardUpTips.showRotate();
+        }
+    }
+
+    void showUpCardRotate(CardZpjl card)
+    {
+        var iPos = 0;
+        var transP = tTrans[iPos];
+        for (var i = 0; i < transP.childCount; i++)
+        {
+            if (card.getPos() == 0 && card.getRow() == i) continue;
+            var rect = transP.GetChild(i);
+            if (rect.childCount > 0)
+            {
+                var cardUp = rect.GetChild(rect.childCount - 1).gameObject.GetComponent<CardZpjl>();
+                if (card.getColor() != cardUp.getColor() && cardUp.getCardNum() - card.getCardNum() == 1)
+                {
+                    StopCoroutine(playTipsCard());
+                    cardUpTips = cardUp;
+                    StartCoroutine(playTipsCard());
+                    break;
+                }
+            }
+        }
+    }
+
+    public bool getBMoveToCard (CardZpjl card, bool bMove) {
 		var iPos = 0;
 		var transP = tTrans [iPos];
 		for (var i = 0; i < transP.childCount; i++) {
@@ -660,6 +696,9 @@ public class Zpjl : MonoBehaviour, IMain
 				}
 			}
 		}
+        //只有13才能移到空位
+        if (card.getCardNum() != 13)
+            return false;
 		for (var i = 0; i < transP.childCount; i++) {
 			if (card.getPos() == 0 && card.getRow() == i) continue;
 			if (transP.GetChild (i).childCount == 0) {
@@ -729,4 +768,17 @@ public class Zpjl : MonoBehaviour, IMain
 		yield return new WaitForSeconds (5.0f);
 		setTouchable (true);
 	}
+
+    IEnumerator playTips()
+    {
+        goTips.SetActive(true);
+        yield return new WaitForSeconds(1.0f);
+        goTips.SetActive(false);
+    }
+
+    void showTips(string str)
+    {
+        goTips.transform.GetChild(0).GetComponent<Text>().text = str;
+        StartCoroutine(playTips());
+    }
 }

@@ -31,7 +31,7 @@ public class CardZpjl : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
 	float _pxDes;
 	float iSpeed = 10.0f;
 	const int ICARDCHILDS = 4;
-	const int ILINEDIS = 40;
+	const int ILINEDIS = 42;
 	bool _bPlayWin = false;
 	float _iWinMoveY;
 

@@ -39,9 +39,10 @@ public class Kdjl : MonoBehaviour, IMain
 	const int IROWDIS = 65;
     int iMLeft = 4; //中转空位
     int iNLeft = 0; //牌组空位
+    Card cardUpTips = null;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
 		initParas ();
         initEvents();
         initShow ();
@@ -225,7 +226,8 @@ public class Kdjl : MonoBehaviour, IMain
 								return;
 							_iPrompt++;
 							card.showRotate ();
-						}
+                            showUpCardRotate(card);
+                        }
 					}
 				}
 			}
@@ -256,8 +258,7 @@ public class Kdjl : MonoBehaviour, IMain
 				}
 			}
 			if (bMove == false) {
-				if (_bWin == false)
-					setTouchable (true);
+                setTouchable (true);
 				yield break;
 			}
 		}
@@ -622,7 +623,40 @@ public class Kdjl : MonoBehaviour, IMain
 		return false;
 	}
 
-	public bool getBMoveToCard (Card card, bool bMove) {
+    IEnumerator playTipsCard()
+    {
+        yield return new WaitForSeconds(0.2f);
+        if (cardUpTips != null)
+        {
+            cardUpTips.showRotate();
+        }
+    }
+
+    void showUpCardRotate(Card card)
+    {
+        var iPos = 0;
+        var transP = tTrans[iPos];
+        var i1 = getILimit(1);
+        var iCount = card.getItems().Count + 1;
+        for (var i = 0; i < transP.childCount; i++)
+        {
+            if (card.getPos() == 0 && card.getRow() == i) continue;
+            var rect = transP.GetChild(i);
+            if (rect.childCount > 0 && iCount <= i1)
+            {
+                var cardUp = rect.GetChild(rect.childCount - 1).gameObject.GetComponent<Card>();
+                if (card.getColor() != cardUp.getColor() && cardUp.getCardNum() - card.getCardNum() == 1)
+                {
+                    StopCoroutine(playTipsCard());
+                    cardUpTips = cardUp;
+                    StartCoroutine(playTipsCard());
+                    break;
+                }
+            }
+        }
+    }
+
+    public bool getBMoveToCard (Card card, bool bMove) {
 		var iPos = 0;
 		var transP = tTrans [iPos];
         var i1 = getILimit(1);
@@ -639,6 +673,9 @@ public class Kdjl : MonoBehaviour, IMain
 				}
             }
         }
+        //空列不提示
+        if (bMove == false)
+            return false;
         // 优先移到有牌的再移动到无牌的
         var i2 = getILimit(0);
         for (var i = 0; i < transP.childCount; i++) {
