@@ -761,11 +761,9 @@ public class Spider : MonoBehaviour, IMain
 				_transWin = trans;
 				lDesStep.Add (_iStep);
 				lDesRow.Add (trans.GetSiblingIndex ());
-                if (Global.bWinPlay)
-                {
-                    setTouchable(false);
-                    Invoke("playWin", 0.5f);
-                }
+                setTouchable(false);
+                Invoke("playWin", 0.5f);
+                //}
             }
 		}
 	}
@@ -805,8 +803,12 @@ public class Spider : MonoBehaviour, IMain
 			setTouchable (true);
 		else {
 			adMgr.PlaySound ("win");
-			StartCoroutine (playWinCards());
-		}
+            if (Global.bWinPlay)
+            {
+                StartCoroutine(playWinCards());
+            }else
+                setTouchable(true);
+        }
 	}
 
 	IEnumerator playWinCards(){
