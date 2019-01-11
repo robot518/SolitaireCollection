@@ -5,4 +5,5 @@
 ![Image](https://raw.githubusercontent.com/aschen518/SolitaireCollection/master//Imgs/jt2.jpg)  
 ![Image](https://raw.githubusercontent.com/aschen518/SolitaireCollection/master//Imgs/jt3.jpg)  
 ![Image](https://raw.githubusercontent.com/aschen518/SolitaireCollection/master/Imgs/jt4.jpg)  
-[Image](https://raw.githubusercontent.com/aschen518/SolitaireCollection/master/Imgs/jt5.jpg)  
+![Image](https://raw.githubusercontent.com/aschen518/SolitaireCollection/master/Imgs/jt5.jpg)  
+
