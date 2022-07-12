@@ -21,7 +21,7 @@ public class Find : MonoBehaviour, IPointerDownHandler, IPointerUpHandler{
 	public void init(int iCardNum, IMain delt){
 		_delegate = delt;
 		_iCardNum = iCardNum + 1;
-		string str = "finds__" + iCardNum;
+		string str = "finds__" + _iCardNum;
 		gameObject.GetComponent<Image>().sprite = AtlasMgr.getInstance().getSpt("res", str);
 	}
 
