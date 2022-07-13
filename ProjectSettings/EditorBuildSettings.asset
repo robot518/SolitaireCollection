@@ -5,25 +5,19 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
   - enabled: 1
-    path: 
-    guid: 00000000000000000000000000000000
+    path: Assets/Scenes/Login.unity
+    guid: 9bc4f3e9807a4476ba3a591002a6d9da
   - enabled: 1
     path: Assets/Scenes/Kdjl.unity
     guid: 3c0a1a19428f84738a9f924a59c7b2b0
+  - enabled: 1
+    path: Assets/Scenes/Spider.unity
+    guid: 2057ba17a15dd4fa88f6ffe1fe2c2b7f
+  - enabled: 1
+    path: Assets/Scenes/Zpjl.unity
+    guid: 411c1268ecbe34db5b1b45ae1d5c531c
+  - enabled: 1
+    path: Assets/Scenes/GrowUp.unity
+    guid: 89ce6dd264d894fb08782e5ec77c8c42
   m_configObjects: {}
