@@ -3920,7 +3920,7 @@ MonoBehaviour:
   textTime: {fileID: 777571615}
   goCard: {fileID: 2070597390}
   goFind: {fileID: 856143527}
-  goMove: {fileID: 856143527}
+  goMove: {fileID: 1720650718}
 --- !u!225 &1234516706
 CanvasGroup:
   m_ObjectHideFlags: 0

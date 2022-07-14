@@ -404,7 +404,7 @@ public class Kdjl : MonoBehaviour, IMain
 				var iPosY = _py - 30 * (i - 1 + 1);
 				var pos = card.gameObject.GetComponent<RectTransform> ().anchoredPosition;
 				card.showMove (iPosX - pos.x, iPosY - pos.y, iPosX);
-			}
+            }
 			yield return new WaitForSeconds (0.2f);
 		}
 
